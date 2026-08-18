@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from logika.obsluga_excel import generuj_pojedynczy_psw
-from logika.generator_pdf import eksportuj_do_pdf
+from logika.generator_pdf import export_to_pdf
 
 
 def _tekst_z_tabeli(wartosc):
@@ -233,7 +233,7 @@ def render_vda_ui():
                 try:
                     if psw_check:
                         sciezka_excel_psw = generuj_pojedynczy_psw(dane_z_formularza)
-                        sciezka_pdf_psw = eksportuj_do_pdf(sciezka_excel_psw)
+                        sciezka_pdf_psw = export_to_pdf(sciezka_excel_psw)
                         st.success(f"Sukces! Dokument wygenerowany jako: {sciezka_excel_psw.name}")
                         st.success(f"Sukces! Dokument PDF wygenerowany jako: {sciezka_pdf_psw.name}")
 
@@ -291,7 +291,7 @@ def render_vda_ui():
                         try:
                             if psw_check:
                                 sciezka_excel_psw = generuj_pojedynczy_psw(dane_z_formularza_masowe)
-                                eksportuj_do_pdf(sciezka_excel_psw)
+                                export_to_pdf(sciezka_excel_psw)
 
                             licznik += 1
                         except Exception as e:

@@ -6,53 +6,53 @@ import gc
 from pathlib import Path
 
 
-def eksportuj_do_pdf(sciezka_excel):
-    sciezka_excel_str = os.path.abspath(sciezka_excel).replace("/", "\\")
-    sciezka_pdf_str = sciezka_excel_str.replace(".xlsx", ".pdf")
+def export_to_pdf(excel_path):
+    excel_path_str = os.path.abspath(excel_path).replace("/", "\\")
+    pdf_path_str = excel_path_str.replace(".xlsx", ".pdf")
 
     excel = None
     wb = None
-    new_wb = None  # Tymczasowy skoroszyt zawierający eksportowany arkusz
+    new_wb = None  # Temporary workbook containing the worksheet selected for export
 
     try:
         pythoncom.CoInitialize()
         time.sleep(1)
 
-        if not os.path.exists(sciezka_excel_str):
-            raise Exception(f"BŁĄD: Plik nie istnieje pod adresem -> {sciezka_excel_str}")
+        if not os.path.exists(excel_path_str):
+            raise Exception(f"BŁĄD: Plik nie istnieje pod adresem -> {excel_path_str}")
 
-        # Osobna instancja Excela ogranicza konflikty z otwartymi skoroszytami
+        # A separate Excel instance prevents conflicts with other open workbooks
         excel = win32com.client.DispatchEx("Excel.Application")
         excel.Visible = False
         excel.DisplayAlerts = False
         excel.EnableEvents = False
         excel.ScreenUpdating = False
 
-        # Otwarcie skoroszytu źródłowego tylko do odczytu
-        wb = excel.Workbooks.Open(sciezka_excel_str, 0, True)
-        arkusz = wb.Worksheets(1)
+        # Open the source workbook in read-only mode
+        wb = excel.Workbooks.Open(excel_path_str, 0, True)
+        source_worksheet = wb.Worksheets(1)
 
-        # Skopiowanie pierwszego arkusza pozwala wyeksportować go bez pozostałych zakładek
-        arkusz.Copy()
+        # Copy the first worksheet to export it without the remaining tabs
+        source_worksheet.Copy()
         new_wb = excel.ActiveWorkbook
-        nowy_arkusz = new_wb.Worksheets(1)
+        export_worksheet = new_wb.Worksheets(1)
 
-        # Dopasowanie arkusza do jednej strony PDF
-        nowy_arkusz.PageSetup.Zoom = False
-        nowy_arkusz.PageSetup.FitToPagesWide = 1
-        nowy_arkusz.PageSetup.FitToPagesTall = 1
+        # Fit the worksheet to a single PDF page
+        export_worksheet.PageSetup.Zoom = False
+        export_worksheet.PageSetup.FitToPagesWide = 1
+        export_worksheet.PageSetup.FitToPagesTall = 1
 
-        # Eksport skoroszytu zawierającego wyłącznie wybrany arkusz
-        new_wb.ExportAsFixedFormat(0, sciezka_pdf_str, 0, True, False, 1, 1, False)
+        # Export the workbook containing only the selected worksheet
+        new_wb.ExportAsFixedFormat(0, pdf_path_str, 0, True, False, 1, 1, False)
 
     except Exception as e:
         raise Exception(f"Błąd silnika PDF: {e}")
 
     finally:
-        # Zamknięcie obiektów Excela niezależnie od wyniku eksportu
+        # Close Excel objects regardless of the export result
         if new_wb is not None:
             try:
-                # Zamknięcie skoroszytu tymczasowego bez zapisywania zmian
+                # Close the temporary workbook without saving changes
                 new_wb.Close(SaveChanges=False)
             except:
                 pass
@@ -67,7 +67,7 @@ def eksportuj_do_pdf(sciezka_excel):
             except:
                 pass
 
-        # Zwolnienie referencji do obiektów COM
+        # Release references to COM objects
         new_wb = None
         wb = None
         excel = None
@@ -75,4 +75,4 @@ def eksportuj_do_pdf(sciezka_excel):
 
         pythoncom.CoUninitialize()
 
-    return Path(sciezka_pdf_str)
+    return Path(pdf_path_str)
