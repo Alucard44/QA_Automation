@@ -91,13 +91,13 @@ python -m pip install -r requirements.txt
 Utwórz w katalogu projektu folder:
 
 ```text
-puste_formatki
+templates
 ```
 
 Następnie umieść w nim kompatybilny szablon pod nazwą:
 
 ```text
-puste_formatki/vda_2020.xlsx
+templates/vda_2020.xlsx
 ```
 
 Szablon Excel nie jest częścią publicznego repozytorium. Został wykluczony ze względu na możliwe ograniczenia dotyczące jego dalszego udostępniania.
@@ -107,7 +107,7 @@ Szablon Excel nie jest częścią publicznego repozytorium. Został wykluczony z
 W głównym katalogu projektu wykonaj:
 
 ```powershell
-python -m streamlit run widok/format_klienta.py
+python -m streamlit run ui/app.py
 ```
 
 Po uruchomieniu Streamlit otworzy aplikację w domyślnej przeglądarce internetowej.
@@ -150,16 +150,16 @@ Jeżeli plik o takiej samej nazwie już istnieje, aplikacja dodaje do nazwy bie�
 
 ```text
 QA_Automation/
-├── konfiguracje_json/
+├── config/
 │   └── vda_config.json
-├── logika/
-│   ├── generator_pdf.py
-│   └── obsluga_excel.py
-├── puste_formatki/
+├── services/
+│   ├── pdf_generator.py
+│   └── excel_generator.py
+├── templates/
 │   └── vda_2020.xlsx        # plik wymagany lokalnie, nieuwzględniony w repozytorium
-├── widok/
-│   ├── format_klienta.py
-│   └── vda_format.py
+├── ui/
+│   ├── app.py
+│   └── vda_view.py
 ├── .gitignore
 ├── requirements.txt
 └── README.md
@@ -167,11 +167,11 @@ QA_Automation/
 
 ### Odpowiedzialność modułów
 
-* `widok/format_klienta.py` – konfiguracja strony głównej i nawigacja aplikacji,
-* `widok/vda_format.py` – formularz VDA, tabela trybu masowego i przygotowanie danych,
-* `logika/obsluga_excel.py` – mapowanie danych oraz generowanie dokumentu Excel,
-* `logika/generator_pdf.py` – eksport pierwszego arkusza dokumentu do PDF,
-* `konfiguracje_json/vda_config.json` – przypisanie danych aplikacji do komórek szablonu oraz określenie sposobu obsługi poszczególnych typów pól.
+* `ui/app.py` – konfiguracja strony głównej i nawigacja aplikacji,
+* `ui/vda_view.py` – formularz VDA, tabela trybu masowego i przygotowanie danych,
+* `services/excel_generator.py` – mapowanie danych oraz generowanie dokumentu Excel,
+* `services/pdf_generator.py` – eksport pierwszego arkusza dokumentu do PDF,
+* `config/vda_config.json` – przypisanie danych aplikacji do komórek szablonu oraz określenie sposobu obsługi poszczególnych typów pól.
 
 ## Konfiguracja mapowania
 
@@ -236,7 +236,7 @@ Czas mierzono od kliknięcia przycisku generowania do wyświetlenia komunikatu o
 * dodanie dokumentu `Part History`, zawierającego historię zmian dotyczących części,
 * dodanie dokumentu `Supply Chain`, dotyczącego informacji o łańcuchu dostaw,
 * dodanie kolejnych konfiguracji klientów na podstawie ich dedykowanych formatek i wymagań.
-* przeniesienie przygotowania danych i sterowania procesem generowania z pliku `vda_format.py` do osobnych modułów, aby ułatwić testowanie, utrzymanie kodu oraz dodawanie kolejnych dokumentów.
+* przeniesienie przygotowania danych i sterowania procesem generowania z pliku `vda_view.py` do osobnych modułów, aby ułatwić testowanie, utrzymanie kodu oraz dodawanie kolejnych dokumentów.
 * przygotowanie osobnej dokumentacji testów manualnych, zawierającej przypadki testowe, wyniki oraz znalezione błędy,
 
 ## Wykorzystanie AI

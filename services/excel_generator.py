@@ -15,8 +15,8 @@ def generate_single_psw(form_data):
     # Parent directory used for generated documents
     output_root = project_root.parent
 
-    config_path = project_root / "konfiguracje_json" / "vda_config.json"
-    template_path = project_root / "puste_formatki" / "vda_2020.xlsx"
+    config_path = project_root / "config" / "vda_config.json"
+    template_path = project_root / "templates" / "vda_2020.xlsx"
 
     # Get the part number and report version
     part_number = str(form_data.get("PartNumber", "Missing_PN")).strip()

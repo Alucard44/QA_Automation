@@ -1,5 +1,5 @@
 import streamlit as st
-import vda_format
+from ui.vda_view import render_vda_ui
 
 
 # Page configuration
@@ -47,7 +47,7 @@ if selected_client == "Strona główna":
     """)
 elif selected_client == "VDA":
     # VDA documentation form
-    vda_format.render_vda_ui()
+    render_vda_ui()
 
 else:
     # Information about planned modules

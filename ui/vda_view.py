@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from logika.obsluga_excel import generate_single_psw
-from logika.generator_pdf import export_to_pdf
+from services.excel_generator import generate_single_psw
+from services.pdf_generator import export_to_pdf
 
 
 def _normalize_table_value(value):
