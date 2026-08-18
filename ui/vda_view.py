@@ -1,25 +1,25 @@
 import streamlit as st
 import pandas as pd
-from logika.obsluga_excel import generuj_pojedynczy_psw
-from logika.generator_pdf import eksportuj_do_pdf
+from services.excel_generator import generate_single_psw
+from services.pdf_generator import export_to_pdf
 
 
-def _tekst_z_tabeli(wartosc):
-    """Zwraca pusty tekst dla brakujących wartości tabeli."""
-    if pd.isna(wartosc):
+def _normalize_table_value(value):
+    """Normalize a table value and return an empty string for missing entries."""
+    if pd.isna(value):
         return ""
 
-    tekst = str(wartosc).strip()
-    if tekst.lower() in {"none", "nan", "<na>"}:
+    text = str(value).strip()
+    if text.lower() in {"none", "nan", "<na>"}:
         return ""
 
-    return tekst
+    return text
 
 
 def render_vda_ui():
     st.header("VDA PPA Report")
 
-    # Wybór trybu generowania PSW
+    # Select the PSW generation mode
     mass_production = st.checkbox("Tryb masowej produkcji PSW")
 
     st.sidebar.header("Dokumenty")
@@ -31,9 +31,9 @@ def render_vda_ui():
         key="psw"
     )
 
-    # Formularz wymaga kliknięcia przycisku generowania
+    # Form submission requires clicking the generation button
     with st.form("vda_form", enter_to_submit=False):
-        # Nagłówek formularza VDA
+        # VDA form header
         col_org_top, col_cust_top = st.columns(2)
         with col_org_top:
             st.markdown("**Organization**")
@@ -50,7 +50,7 @@ def render_vda_ui():
 
         st.markdown("---")
 
-        # Powód raportu i wyzwalacze
+        # Report reason and PPA procedure triggers
         if psw_check:
             st.markdown("**Reason for report creation**")
             col_rsn1, col_rsn2, col_rsn3 = st.columns(3)
@@ -76,9 +76,9 @@ def render_vda_ui():
 
         st.markdown("---")
 
-        # Dane artykułu
+        # Part data
         if not mass_production:
-            # Dane trybu pojedynczego
+            # Single generation mode data
             col_org, col_sam, col_cus = st.columns(3)
             with col_org:
                 st.markdown("**Information about the organization**")
@@ -118,7 +118,7 @@ def render_vda_ui():
                 imds_number = st.text_input("IMDS Number", value="11111111 / 1", label_visibility="collapsed")
 
         else:
-            # Dane wspólne dla trybu masowego
+            # Shared data for mass generation mode
             col_org, col_sam, col_cus = st.columns(3)
             with col_org:
                 st.markdown("**Information about the organization**")
@@ -142,7 +142,7 @@ def render_vda_ui():
             st.markdown("---")
             imds_check = st.checkbox("The IMDS record was created under the MDS ID No.: (Numery podaj w tabeli poniżej)", value=True)
 
-        # Dane osoby kontaktowej
+        # Contact person details
         st.markdown("---")
         st.markdown("**Confirmation of organization (Osoba kontaktowa)**")
         col_cont1, col_cont2, col_cont3, col_cont4, col_cont5 = st.columns(5)
@@ -157,30 +157,30 @@ def render_vda_ui():
         with col_cont5:
             contact_date = st.text_input("Date", value="01.01.2026")
 
-        # Tabela danych dla trybu masowego
+        # Input table for mass generation mode
         if mass_production:
             st.markdown("---")
             st.subheader("Tryb masowy - Tabela Danych Zmiennych")
-            kolumny_zmienne = [
+            variable_columns = [
                 "Report number", "Report version", "Part Number", "Name",
                 "Drawing number", "Version / Date", "Sample weight [kg]",
                 "IMDS MDS ID No.", "Customer Part Number",
                 "Customer Name", "Customer Drawing number", "Customer Version / Date"
             ]
-            df_szablon = pd.DataFrame(columns=kolumny_zmienne)
-            dane_wejsciowe = st.data_editor(df_szablon, num_rows="dynamic")
+            table_template = pd.DataFrame(columns=variable_columns)
+            input_data = st.data_editor(table_template, num_rows="dynamic")
 
         submit_btn = st.form_submit_button("Generuj Dokumentację")
 
-    # Przygotowanie i przekazanie danych do generatora
+    # Prepare and pass data to the document generator
     if submit_btn:
-        # Dane wspólne dla obu trybów
-        pelny_adres_org = f"{org_name}\n{org_address}\n{org_zip_city}\n{org_country}"
-        pelny_adres_klienta = f"{cust_name}\n{cust_address}\n{cust_zip_city}\n{cust_country}"
+        # Data shared by both generation modes
+        organization_full_address = f"{org_name}\n{org_address}\n{org_zip_city}\n{org_country}"
+        customer_full_address = f"{cust_name}\n{cust_address}\n{cust_zip_city}\n{cust_country}"
 
-        dane_z_formularza = {
-            "Organization": pelny_adres_org,
-            "Customer": pelny_adres_klienta,
+        form_data = {
+            "Organization": organization_full_address,
+            "Customer": customer_full_address,
             "Reason_PPA": reason_ppa,
             "Reason_Other": reason_other,
             "Reason_Requal": reason_requal,
@@ -200,8 +200,8 @@ def render_vda_ui():
         }
 
         if not mass_production:
-            # Generowanie pojedynczego dokumentu
-            dane_z_formularza.update({
+            # Generate a single document
+            form_data.update({
                 "ReportNumber": report_number,
                 "ReportVersion": report_version,
                 "DeliveryLocation": delivery_location,
@@ -232,34 +232,34 @@ def render_vda_ui():
             with st.spinner("Generowanie raportu VDA w toku..."):
                 try:
                     if psw_check:
-                        sciezka_excel_psw = generuj_pojedynczy_psw(dane_z_formularza)
-                        sciezka_pdf_psw = eksportuj_do_pdf(sciezka_excel_psw)
-                        st.success(f"Sukces! Dokument wygenerowany jako: {sciezka_excel_psw.name}")
-                        st.success(f"Sukces! Dokument PDF wygenerowany jako: {sciezka_pdf_psw.name}")
+                        psw_excel_path = generate_single_psw(form_data)
+                        psw_pdf_path = export_to_pdf(psw_excel_path)
+                        st.success(f"Sukces! Dokument wygenerowany jako: {psw_excel_path.name}")
+                        st.success(f"Sukces! Dokument PDF wygenerowany jako: {psw_pdf_path.name}")
 
                 except Exception as e:
                     st.error(f"Wystąpił błąd podczas generowania: {e}")
         else:
-            # Generowanie dokumentów w trybie masowym
-            # Sprawdzenie, czy tabela zawiera dane
-            if dane_wejsciowe.empty:
+            # Generate documents in mass generation mode
+            # Check whether the input table contains data
+            if input_data.empty:
                 st.warning("Tabela danych zmiennych jest pusta. Dodaj wiersze z numerami części!")
             else:
-                licznik = 0
+                generated_count = 0
                 with st.spinner("Generowanie raportów masowych w toku..."):
-                    # Przetwarzanie kolejnych wierszy tabeli
-                    for index, row in dane_wejsciowe.iterrows():
-                        pn = _tekst_z_tabeli(row.get("Part Number"))
+                    # Process each row of the input table
+                    for _, row in input_data.iterrows():
+                        part_number = _normalize_table_value(row.get("Part Number"))
 
-                        # Pominięcie pustych wierszy
-                        if not pn:
+                        # Skip empty rows
+                        if not part_number:
                             continue
 
-                        dane_z_formularza_masowe = dane_z_formularza.copy()
+                        row_form_data = form_data.copy()
 
-                        # Przygotowanie danych dla bieżącego wiersza
-                        dane_z_formularza_masowe.update({
-                            # Dane wspólne dla wszystkich wierszy
+                        # Prepare data for the current row
+                        row_form_data.update({
+                            # Data shared by all rows
                             "DeliveryLocation": delivery_location,
                             "ProductionLocation": production_location,
                             "Customer_Name": customer,
@@ -273,28 +273,28 @@ def render_vda_ui():
                             "SoftwareVersion": software_version,
                             "IdentificationDUNS": identification_duns,
 
-                            # Dane pobierane z bieżącego wiersza tabeli
-                            "ReportNumber": _tekst_z_tabeli(row.get("Report number")),
-                            "ReportVersion": _tekst_z_tabeli(row.get("Report version")),
-                            "PartNumber": pn,
-                            "PartName": _tekst_z_tabeli(row.get("Name")),
-                            "DrawingNumber": _tekst_z_tabeli(row.get("Drawing number")),
-                            "VersionDate": _tekst_z_tabeli(row.get("Version / Date")),
-                            "SampleWeight": _tekst_z_tabeli(row.get("Sample weight [kg]")),
-                            "IMDS_Number": _tekst_z_tabeli(row.get("IMDS MDS ID No.")),
-                            "Customer_PartNumber": _tekst_z_tabeli(row.get("Customer Part Number")),
-                            "Customer_PartName": _tekst_z_tabeli(row.get("Customer Name")),
-                            "Customer_DrawingNumber": _tekst_z_tabeli(row.get("Customer Drawing number")),
-                            "Customer_VersionDate": _tekst_z_tabeli(row.get("Customer Version / Date"))
+                            # Data read from the current table row
+                            "ReportNumber": _normalize_table_value(row.get("Report number")),
+                            "ReportVersion": _normalize_table_value(row.get("Report version")),
+                            "PartNumber": part_number,
+                            "PartName": _normalize_table_value(row.get("Name")),
+                            "DrawingNumber": _normalize_table_value(row.get("Drawing number")),
+                            "VersionDate": _normalize_table_value(row.get("Version / Date")),
+                            "SampleWeight": _normalize_table_value(row.get("Sample weight [kg]")),
+                            "IMDS_Number": _normalize_table_value(row.get("IMDS MDS ID No.")),
+                            "Customer_PartNumber": _normalize_table_value(row.get("Customer Part Number")),
+                            "Customer_PartName": _normalize_table_value(row.get("Customer Name")),
+                            "Customer_DrawingNumber": _normalize_table_value(row.get("Customer Drawing number")),
+                            "Customer_VersionDate": _normalize_table_value(row.get("Customer Version / Date"))
                         })
 
                         try:
                             if psw_check:
-                                sciezka_excel_psw = generuj_pojedynczy_psw(dane_z_formularza_masowe)
-                                eksportuj_do_pdf(sciezka_excel_psw)
+                                psw_excel_path = generate_single_psw(row_form_data)
+                                export_to_pdf(psw_excel_path)
 
-                            licznik += 1
+                            generated_count += 1
                         except Exception as e:
-                            st.error(f"Błąd przy generowaniu dla PN {pn}: {e}")
+                            st.error(f"Błąd przy generowaniu dla PN {part_number}: {e}")
 
-                st.success(f"Sukces! Wygenerowano masowo {licznik} plików PSW na podstawie danych z tabeli!")
+                st.success(f"Sukces! Wygenerowano masowo {generated_count} plików PSW na podstawie danych z tabeli!")
