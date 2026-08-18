@@ -2,7 +2,7 @@ import streamlit as st
 import vda_format
 
 
-# Konfiguracja strony
+# Page configuration
 st.set_page_config(
     page_title="PPAP Automotive Quality Hub",
     page_icon="🛫",
@@ -10,19 +10,19 @@ st.set_page_config(
 )
 
 
-# Nawigacja w panelu bocznym
+# Sidebar navigation
 st.sidebar.header("Nawigacja")
-klient = st.sidebar.selectbox(
+selected_client = st.sidebar.selectbox(
     "Wybierz klienta",
     ["Strona główna", "VDA", "CNH", "MAN", "DAF"]
 )
 
 
-if klient == "Strona główna":
-    # Strona główna
+if selected_client == "Strona główna":
+    # Home page
     st.subheader("Witaj w PPAP Automotive Quality Hub!")
 
-    # Podsumowanie stanu aplikacji
+    # Application status summary
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(label="Obsługiwani klienci", value="1 (VDA)")
@@ -45,11 +45,11 @@ if klient == "Strona główna":
     3. **Uzupełnij formularz** wymaganymi danymi.
     4. **Kliknij „Generuj Dokumentację”**, aby utworzyć pliki Excel i PDF.
     """)
-elif klient == "VDA":
-    # Formularz dokumentacji VDA
+elif selected_client == "VDA":
+    # VDA documentation form
     vda_format.render_vda_ui()
 
 else:
-    # Informacja o planowanych modułach
-    st.subheader(f"Klient {klient} będzie wkrótce dostępny.")
+    # Information about planned modules
+    st.subheader(f"Klient {selected_client} będzie wkrótce dostępny.")
     st.warning("Pracujemy nad dodaniem obsługi tego klienta. Prosimy o cierpliwość.")
