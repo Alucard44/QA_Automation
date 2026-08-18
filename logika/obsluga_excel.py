@@ -1,69 +1,70 @@
 import json
-import openpyxl
+from datetime import datetime
 from pathlib import Path
+
+import openpyxl
 from openpyxl.styles import Alignment
-import datetime
 
-def generuj_pojedynczy_psw(dane_z_formularza):
+def generate_single_psw(form_data):
     """
-    Mapuje dane formularza do szablonu PSW i zapisuje dokument Excel.
+    Map form data to the PSW template and save the resulting Excel document.
     """
-    # Katalog główny projektu
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    # Project root directory
+    project_root = Path(__file__).resolve().parent.parent
 
-    # Katalog nadrzędny dla wygenerowanych dokumentów
-    ROOT_DIR = BASE_DIR.parent
+    # Parent directory used for generated documents
+    output_root = project_root.parent
 
-    sciezka_json = BASE_DIR / "konfiguracje_json" / "vda_config.json"
-    sciezka_excel = BASE_DIR / "puste_formatki" / "vda_2020.xlsx"
+    config_path = project_root / "konfiguracje_json" / "vda_config.json"
+    template_path = project_root / "puste_formatki" / "vda_2020.xlsx"
 
-    # Pobranie numeru części i wersji raportu
-    part_number = str(dane_z_formularza.get("PartNumber", "Brak_PN")).strip()
-    wersja_raportu = str(dane_z_formularza.get("ReportVersion", "00")).strip()
+    # Get the part number and report version
+    part_number = str(form_data.get("PartNumber", "Missing_PN")).strip()
+    report_version = str(form_data.get("ReportVersion", "00")).strip()
 
-    # Folder docelowy: vda/<numer części>/<wersja raportu>
-    docelowy_folder = ROOT_DIR / "vda" / part_number / wersja_raportu
+    # Output directory: vda/<part number>/<report version>
+    output_dir = output_root / "vda" / part_number / report_version
 
-    # Utworzenie folderu docelowego, jeśli nie istnieje
-    docelowy_folder.mkdir(parents=True, exist_ok=True)
+    # Create the output directory if it does not exist
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Domyślna nazwa pliku wynikowego
-    sciezka_zapisu = docelowy_folder / f"PSW_{part_number}.xlsx"
+    # Default output filename
+    output_path = output_dir / f"PSW_{part_number}.xlsx"
 
-    # Dodanie daty i licznika zapobiega nadpisaniu istniejącego pliku
-    licznik = 1
+    # Append the current date and a counter to prevent overwriting an existing file
+    file_counter = 1
 
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    current_date = datetime.now().strftime("%Y-%m-%d")
 
-    while sciezka_zapisu.exists():
-        nowa_nazwa = f"PSW_{part_number}_{today}_{licznik}.xlsx"
-        sciezka_zapisu = docelowy_folder / nowa_nazwa
-        licznik += 1
+    while output_path.exists():
+        new_filename = f"PSW_{part_number}_{current_date}_{file_counter}.xlsx"
+        output_path = output_dir / new_filename
+        file_counter += 1
 
-    # Wczytanie mapowania pól i szablonu Excel
-    with open(sciezka_json, 'r', encoding='utf-8') as f:
-        mapa = json.load(f)
+    # Load the field mapping and Excel template
+    with open(config_path, 'r', encoding='utf-8') as config_file:
+        field_mapping = json.load(config_file)
 
-    wb = openpyxl.load_workbook(sciezka_excel)
-    sheet = wb.active
+    workbook = openpyxl.load_workbook(template_path)
+    sheet = workbook.active
 
-    # Uzupełnienie komórek zgodnie z konfiguracją
-    for klucz, wartosc in dane_z_formularza.items():
-        if klucz in mapa["Fields"]:
-            konf = mapa["Fields"][klucz]
-            komorka = sheet[konf["cell"]]
-            typ = konf.get("type", "standard")
+    # Populate cells according to the field mapping
+    for field_name, value in form_data.items():
+        if field_name in field_mapping["Fields"]:
+            field_config = field_mapping["Fields"][field_name]
+            cell = sheet[field_config["cell"]]
+            field_type = field_config.get("type", "standard")
 
-            if typ in ["checkbox", "merged_checkbox"]:
-                if wartosc is True:
-                    komorka.value = "X"
-                    komorka.alignment = Alignment(horizontal='center', vertical='center')
-            elif typ == "merged_multiline":
-                komorka.value = wartosc
-                komorka.alignment = Alignment(wrapText=True, vertical='top')
+            if field_type in ["checkbox", "merged_checkbox"]:
+                if value is True:
+                    cell.value = "X"
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+            elif field_type == "merged_multiline":
+                cell.value = value
+                cell.alignment = Alignment(wrapText=True, vertical='top')
             else:
-                komorka.value = wartosc
+                cell.value = value
 
-    wb.save(sciezka_zapisu)
-    wb.close()
-    return sciezka_zapisu
+    workbook.save(output_path)
+    workbook.close()
+    return output_path
