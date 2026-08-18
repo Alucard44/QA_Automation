@@ -1,0 +1,54 @@
+{
+  "Customer": "VDA",
+  "Fields": {
+    "Organization": {"cell": "A4", "type": "merged_multiline"},
+    "Customer": {"cell": "A10", "type": "merged_multiline"},
+
+    "Reason_PPA": {"cell": "U4", "type": "merged_checkbox"},
+    "Reason_Other": {"cell": "U5", "type": "merged_checkbox"},
+    "Reason_Requal": {"cell": "U6", "type": "merged_checkbox"},
+
+    "Trigger_Sample": {"cell": "U8", "type": "merged_checkbox"},
+    "Trigger_NewPart": {"cell": "U9", "type": "merged_checkbox"},
+    "Trigger_ChangeProd": {"cell": "U10", "type": "merged_checkbox"},
+    "Trigger_ChangeProc": {"cell": "U11", "type": "merged_checkbox"},
+    "Trigger_ChangeSupply": {"cell": "U12", "type": "merged_checkbox"},
+    "Trigger_Reuse": {"cell": "U13", "type": "merged_checkbox"},
+    "Trigger_Updated": {"cell": "U14", "type": "merged_checkbox"},
+
+    "ReportNumber": {"cell": "H16", "type": "merged"},
+    "ReportVersion": {"cell": "H17", "type": "merged"},
+    "DeliveryLocation": {"cell": "H18", "type": "merged"},
+    "ProductionLocation": {"cell": "H19", "type": "merged"},
+    "PartNumber": {"cell": "H20", "type": "merged"},
+    "PartName": {"cell": "H21", "type": "merged"},
+    "DrawingNumber": {"cell": "H22", "type": "merged"},
+    "VersionDate": {"cell": "H23", "type": "merged"},
+
+    "DeliveryNoteNumber": {"cell": "V16", "type": "merged"},
+    "DeliveryQuantity": {"cell": "V17", "type": "merged"},
+    "BatchNumber": {"cell": "V18", "type": "merged"},
+    "SampleWeight": {"cell": "V19", "type": "merged"},
+    "HardwareVersion": {"cell": "V20", "type": "merged"},
+    "DiagnosisStatus": {"cell": "V21", "type": "merged"},
+    "SoftwareVersion": {"cell": "V22", "type": "merged"},
+    "IdentificationDUNS": {"cell": "V23", "type": "merged"},
+
+    "Customer_Name": {"cell": "AI16", "type": "merged"},
+    "Customer_OrderNumber": {"cell": "AI18", "type": "merged"},
+    "Customer_UnloadingPoint": {"cell": "AI19", "type": "merged"},
+    "Customer_PartNumber": {"cell": "AI20", "type": "merged"},
+    "Customer_PartName": {"cell": "AI21", "type": "merged"},
+    "Customer_DrawingNumber": {"cell": "AI22", "type": "merged"},
+    "Customer_VersionDate": {"cell": "AI23", "type": "merged"},
+
+    "IMDS_Check": {"cell": "A27", "type": "merged_checkbox"},
+    "IMDS_Number": {"cell": "W27", "type": "merged"},
+
+    "ContactName": {"cell": "I28", "type": "merged"},
+    "ContactDepartment": {"cell": "I29", "type": "merged"},
+    "ContactPhone": {"cell": "I30", "type": "merged"},
+    "ContactEmail": {"cell": "I31", "type": "merged"},
+    "ContactDate": {"cell": "I32", "type": "merged"}
+  }
+}
