@@ -44,6 +44,7 @@
 
     "IMDS_Check": {"cell": "A27", "type": "merged_checkbox"},
     "IMDS_Number": {"cell": "W27", "type": "merged"},
+    "Remark": {"cell": "AA28", "type": "merged_multiline"},
 
     "ContactName": {"cell": "I28", "type": "merged"},
     "ContactDepartment": {"cell": "I29", "type": "merged"},

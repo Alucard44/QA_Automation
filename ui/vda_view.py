@@ -117,6 +117,7 @@ def render_vda_ui():
             with col_imds_text:
                 imds_number = st.text_input("IMDS Number", value="11111111 / 1", label_visibility="collapsed")
 
+
         else:
             # Shared data for mass generation mode
             col_org, col_sam, col_cus = st.columns(3)
@@ -141,6 +142,9 @@ def render_vda_ui():
 
             st.markdown("---")
             imds_check = st.checkbox("The IMDS record was created under the MDS ID No.: (Numery podaj w tabeli poniżej)", value=True)
+
+        st.markdown("**Remark**")
+        remark = st.text_area("Remark", placeholder="Enter additional information...", height=150, key="single_remark")
 
         # Contact person details
         st.markdown("---")
@@ -196,7 +200,8 @@ def render_vda_ui():
             "ContactDepartment": contact_department,
             "ContactPhone": contact_phone,
             "ContactEmail": contact_email,
-            "ContactDate": contact_date
+            "ContactDate": contact_date,
+            "Remark": remark
         }
 
         if not mass_production:
@@ -225,7 +230,7 @@ def render_vda_ui():
                 "Customer_PartName": customer_part_name,
                 "Customer_DrawingNumber": customer_drawing_number,
                 "Customer_VersionDate": customer_version_date,
-                "IMDS_Number": imds_number
+                "IMDS_Number": imds_number,
             })
 
 
