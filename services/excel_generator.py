@@ -1,9 +1,71 @@
 import json
+import textwrap
+from copy import copy
 from datetime import datetime
 from pathlib import Path
 
 import openpyxl
 from openpyxl.styles import Alignment
+
+
+def _count_wrapped_lines(value, characters_per_line):
+    """Estimate how many lines are required to display the text."""
+    text = "" if value is None else str(value)
+    source_lines = text.splitlines() or [""]
+
+    return sum(
+        max(
+            1,
+            len(
+                textwrap.wrap(
+                    line,
+                    width=characters_per_line,
+                    break_long_words=True
+                )
+            )
+        )
+        for line in source_lines
+    )
+
+
+def _set_merged_autofit(
+    sheet,
+    cell,
+    value,
+    base_row_heights,
+    characters_per_line
+):
+    """Write wrapped text and increase the row height when required."""
+    cell.value = value
+
+    alignment = copy(cell.alignment)
+    alignment.wrap_text = True
+    alignment.vertical = "center"
+    cell.alignment = alignment
+
+    if cell.row not in base_row_heights:
+        base_row_heights[cell.row] = (
+            sheet.row_dimensions[cell.row].height
+            or sheet.sheet_format.defaultRowHeight
+            or 15
+        )
+
+    base_height = base_row_heights[cell.row]
+    required_lines = _count_wrapped_lines(
+        value,
+        characters_per_line
+    )
+    required_height = base_height * required_lines
+
+    current_height = (
+        sheet.row_dimensions[cell.row].height
+        or base_height
+    )
+
+    sheet.row_dimensions[cell.row].height = max(
+        current_height,
+        required_height
+    )
 
 def generate_single_psw(form_data):
     """
@@ -48,6 +110,8 @@ def generate_single_psw(form_data):
     workbook = openpyxl.load_workbook(template_path)
     sheet = workbook.active
 
+    base_row_heights = {}
+
     # Populate cells according to the field mapping
     for field_name, value in form_data.items():
         if field_name in field_mapping["Fields"]:
@@ -61,7 +125,9 @@ def generate_single_psw(form_data):
                     cell.alignment = Alignment(horizontal='center', vertical='center')
             elif field_type == "merged_multiline":
                 cell.value = value
-                cell.alignment = Alignment(wrapText=True, vertical='top')
+                cell.alignment = Alignment(wrap_text=True, vertical="top")
+            elif field_type == "merged_autofit":
+                _set_merged_autofit(sheet, cell, value, base_row_heights, field_config.get("characters_per_line", 24))
             else:
                 cell.value = value
 

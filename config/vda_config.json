@@ -21,7 +21,7 @@
     "DeliveryLocation": {"cell": "H18", "type": "merged"},
     "ProductionLocation": {"cell": "H19", "type": "merged"},
     "PartNumber": {"cell": "H20", "type": "merged"},
-    "PartName": {"cell": "H21", "type": "merged"},
+    "PartName": {"cell": "H21", "type": "merged_autofit", "characters_per_line": 24},
     "DrawingNumber": {"cell": "H22", "type": "merged"},
     "VersionDate": {"cell": "H23", "type": "merged"},
 
@@ -38,7 +38,7 @@
     "Customer_OrderNumber": {"cell": "AI18", "type": "merged"},
     "Customer_UnloadingPoint": {"cell": "AI19", "type": "merged"},
     "Customer_PartNumber": {"cell": "AI20", "type": "merged"},
-    "Customer_PartName": {"cell": "AI21", "type": "merged"},
+    "Customer_PartName": {"cell": "AI21", "type": "merged_autofit", "characters_per_line": 24},
     "Customer_DrawingNumber": {"cell": "AI22", "type": "merged"},
     "Customer_VersionDate": {"cell": "AI23", "type": "merged"},
 
